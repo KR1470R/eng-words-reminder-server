@@ -1,5 +1,4 @@
 import { Injectable } from '@nestjs/common';
-import process from 'node:process';
 import fs from 'node:fs';
 import path from 'node:path';
 import ExportMessagesData, {
@@ -10,12 +9,14 @@ import TermObject from 'src/models/TermObject.type';
 
 @Injectable()
 export class DatasetService {
-  private path: string;
   private terms_words: TermObject[] = [];
 
   constructor() {
-    this.path = process.env.DATA_PATH;
     this.load();
+  }
+
+  public get data() {
+    return this.terms_words;
   }
 
   private load(): void {
