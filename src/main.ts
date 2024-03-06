@@ -5,8 +5,13 @@ import path from 'node:path';
 import process from 'node:process';
 
 configDotenv({
-  path: path.join(__dirname, '.env'),
+  path: path.join(__dirname, 'configs', '.env'),
 });
+
+console.log(
+  path.join(__dirname, 'configs', '.env'),
+  process.env.REDIS_CACHE_HOST,
+);
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

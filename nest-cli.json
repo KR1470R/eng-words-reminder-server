@@ -9,6 +9,11 @@
         "include": "../data/**", 
         "outDir": "dist/data", 
         "watchAssets": true 
+      },
+      {
+        "include": "../configs/**",
+        "outDir": "dist/configs",
+        "watchAssets": true
       }
     ]
   }

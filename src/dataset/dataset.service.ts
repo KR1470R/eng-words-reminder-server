@@ -1,11 +1,12 @@
 import { Injectable } from '@nestjs/common';
-import fs from 'node:fs';
+import fs from 'fs';
 import path from 'node:path';
 import ExportMessagesData, {
   Message,
   MessageObjectType,
 } from 'src/models/ExportMessages.interface';
 import TermObject from 'src/models/TermObject.type';
+import { createHmac } from 'node:crypto';
 
 @Injectable()
 export class DatasetService {
@@ -36,7 +37,9 @@ export class DatasetService {
       .filter((t: TermObject) => t.term && t.meanings);
   }
 
-  private getWordsFromSuitableMsg(message: Message): TermObject[] | undefined {
+  private getWordsFromSuitableMsg(
+    message: Message,
+  ): TermObject[] | undefined {
     const commands = message.text_entities.filter(
       (msg: MessageObjectType) => msg.type === 'bot_command',
     );
@@ -60,6 +63,7 @@ export class DatasetService {
     const splitted = pair.split('-').map((c) => c.replace(/;/, '').trim());
     if (splitted.length === 2)
       return {
+        hash: createHmac('sha1', splitted[0]).digest('hex'),
         term: splitted[0],
         meanings: splitted[1].split(',').map((m) => m.trim()),
       };
