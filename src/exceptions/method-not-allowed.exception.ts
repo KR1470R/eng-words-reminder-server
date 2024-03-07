@@ -1,6 +1,8 @@
-import Exception from './exception';
+import InternalError from './internal-error';
+import { HttpStatus } from '@nestjs/common';
 
-export default class MethodNotAllowedException extends Exception {
-  public readonly errorCode: number = 405;
-  public readonly message: string = 'not allowed';
+export default class MethodNotAllowedException extends InternalError {
+  constructor(message = 'Not allowed') {
+    super(message, HttpStatus.METHOD_NOT_ALLOWED);
+  }
 }

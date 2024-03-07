@@ -1,6 +1,8 @@
-import Exception from './exception';
+import InternalError from './internal-error';
+import { HttpStatus } from '@nestjs/common';
 
-export default class NotFoundException extends Exception {
-  public readonly errorCode: number = 404;
-  public readonly message: string = 'not found';
+export default class NotFoundException extends InternalError {
+  constructor(message = 'Not found') {
+    super(message, HttpStatus.NOT_FOUND);
+  }
 }

@@ -42,7 +42,7 @@ export class CacheService extends RedisService {
     });
     if (
       existent_user_hmac &&
-      user_hmac.length !== existent_user_hmac.length &&
+      user_hmac.length === existent_user_hmac.length &&
       timingSafeEqual(
         Buffer.from(user_hmac),
         Buffer.from(existent_user_hmac),

@@ -1,6 +1,8 @@
-import Exception from './exception';
+import InternalError from './internal-error';
+import { HttpStatus } from '@nestjs/common';
 
-export default class UnauthorizedException extends Exception {
-  public readonly errorCode: number = 401;
-  public readonly message: string = 'unauthorized';
+export default class UnauthorizedException extends InternalError {
+  constructor(message = 'Unauthorized') {
+    super(message, HttpStatus.UNAUTHORIZED);
+  }
 }
