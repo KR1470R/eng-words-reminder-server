@@ -4,7 +4,7 @@ import { RedisService } from '../redis/redis.service';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import TermObject from '../models/TermObject.type';
 import { UUID, timingSafeEqual, createHmac } from 'crypto';
-import { UnauthorizedException, ForbiddenException } from '../exceptions';
+import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 
 @Injectable()
 export class CacheService extends RedisService {
@@ -75,7 +75,7 @@ export class CacheService extends RedisService {
     return existentTermHash;
   }
 
-  public async getAllTermsOfUser(user_id: string) {
+  public async getAllTermsOfUser(user_id: string): Promise<string[]> {
     const user_terms = await this.repository.keys(
       `users:${user_id}:terms:*`,
     );
@@ -85,5 +85,12 @@ export class CacheService extends RedisService {
   public async getAllUsersIds(): Promise<string[]> {
     const users_ids = await this.repository.keys(`users:*`);
     return users_ids as UUID[];
+  }
+
+  public async clearUserTerms(user_id: string) {
+    const terms_hashes = await this.getAllTermsOfUser(user_id);
+    for (const term_hash of terms_hashes) {
+      await this.repository.del(`users:${user_id}:${term_hash}`);
+    }
   }
 }

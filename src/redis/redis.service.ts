@@ -1,6 +1,5 @@
 import Redis from 'ioredis';
 import { Injectable } from '@nestjs/common';
-import { Exception } from '../exceptions';
 import {
   RedisPayloadOne,
   RedisPayloadMany,
@@ -17,7 +16,7 @@ export class RedisService {
       await this.repository.set(payload['key'], payload['value']);
     } catch (err) {
       err = err as Error;
-      throw new Exception(`Error at oneCreateProcess: ${err.message}`);
+      throw new Error(`Error at oneCreateProcess: ${err.message}`);
     }
   }
 
@@ -28,7 +27,7 @@ export class RedisService {
       return await this.repository.get(payload['key']);
     } catch (err) {
       err = err as Error;
-      throw new Exception(`Error at oneGetProcess: ${err.message}`);
+      throw new Error(`Error at oneGetProcess: ${err.message}`);
     }
   }
 
@@ -39,7 +38,7 @@ export class RedisService {
       await this.repository.set(payload['key'], payload['value']);
     } catch (err) {
       err = err as Error;
-      throw new Exception(`Error at oneUpdateProcess: ${err.message}`);
+      throw new Error(`Error at oneUpdateProcess: ${err.message}`);
     }
   }
 
@@ -50,7 +49,7 @@ export class RedisService {
       return await this.repository.del(payload['key']);
     } catch (err) {
       err = err as Error;
-      throw new Exception(`Error at oneDropProcess: ${err.message}`);
+      throw new Error(`Error at oneDropProcess: ${err.message}`);
     }
   }
 
@@ -65,7 +64,7 @@ export class RedisService {
       })();
     } catch (err) {
       err = err as Error;
-      throw new Exception(`Error at manyGetProcess: ${err.message}`);
+      throw new Error(`Error at manyGetProcess: ${err.message}`);
     }
   }
 
@@ -83,7 +82,7 @@ export class RedisService {
       })();
     } catch (err) {
       err = err as Error;
-      throw new Exception(`Error at manyCreateProcess: ${err.message}`);
+      throw new Error(`Error at manyCreateProcess: ${err.message}`);
     }
   }
 
@@ -101,7 +100,7 @@ export class RedisService {
       })();
     } catch (err) {
       err = err as Error;
-      throw new Exception(`Error at manyUpdateProcess: ${err.message}`);
+      throw new Error(`Error at manyUpdateProcess: ${err.message}`);
     }
   }
 
@@ -119,7 +118,7 @@ export class RedisService {
       })();
     } catch (err) {
       err = err as Error;
-      throw new Exception(`Error at manyDropProcess: ${err.message}`);
+      throw new Error(`Error at manyDropProcess: ${err.message}`);
     }
   }
 }

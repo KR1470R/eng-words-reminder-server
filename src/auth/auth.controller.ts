@@ -7,13 +7,15 @@ import {
   Post,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
+import { Public } from 'src/guards/public.decorator';
 
 @Controller('auth')
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @HttpCode(HttpStatus.OK)
   @Post('register')
+  @Public()
+  @HttpCode(HttpStatus.OK)
   public register(@Body() registerDto: Record<string, string>) {
     return this.authService.signUp(
       registerDto.username,
@@ -21,8 +23,9 @@ export class AuthController {
     );
   }
 
-  @HttpCode(HttpStatus.OK)
   @Get('login')
+  @Public()
+  @HttpCode(HttpStatus.OK)
   public login(@Body() loginDto: Record<string, string>) {
     return this.authService.signIn(loginDto.username, loginDto.password);
   }

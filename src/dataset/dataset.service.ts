@@ -28,13 +28,28 @@ export class DatasetService {
       ),
     ) as ExportMessagesData;
     for (const message of raw_data.messages) {
-      const parsed = this.getWordsFromSuitableMsg(message);
-      if (!parsed) continue;
-      this.terms_words = [...this.terms_words, ...parsed];
+      const parsed_msgs = this.getWordsFromSuitableMsg(message);
+      if (!parsed_msgs || parsed_msgs.length === 0) continue;
+      for (const parsed_term of parsed_msgs) {
+        const existent_id = this.terms_words.findIndex(
+          (term) => term.hash === parsed_term.hash,
+        );
+        if (existent_id === -1) {
+          this.terms_words.push(parsed_term);
+        } else {
+          for (const mean of parsed_term.meanings) {
+            this.terms_words[existent_id].meanings.push(mean);
+          }
+        }
+      }
     }
     this.terms_words = this.terms_words
       .flat()
-      .filter((t: TermObject) => t.term && t.meanings);
+      .filter((t: TermObject) => t.term && t.meanings)
+      .map((term) => {
+        term.meanings = [...new Set(term.meanings)];
+        return term;
+      });
   }
 
   private getWordsFromSuitableMsg(
@@ -56,7 +71,7 @@ export class DatasetService {
         .filter((t) => t !== undefined);
       if (word_pairs) terms.push(word_pairs);
     }
-    return terms;
+    return terms.flat();
   }
 
   private parseWordsPairs(pair: string): TermObject | undefined {
