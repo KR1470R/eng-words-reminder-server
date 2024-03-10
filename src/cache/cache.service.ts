@@ -94,8 +94,7 @@ export class CacheService extends RedisService {
   public async clearUserTerms(user_id: string) {
     await this.checkUserExists(user_id);
     const terms_hashes = await this.getAllTermsOfUser(user_id);
-    for (const term_hash of terms_hashes) {
-      await this.repository.del(`users:${user_id}:${term_hash}`);
-    }
+    for (const term_path of terms_hashes)
+      await this.repository.del(term_path);
   }
 }
