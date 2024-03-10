@@ -20,13 +20,8 @@ export class CacheService extends RedisService {
       'sha256',
       `${username}:${Buffer.from(password).toString('base64')}`,
     ).digest('hex');
-    const existent_user_hmac = await this.oneGetProcess({
-      key: `users:${user_hmac}`,
-    });
-    if (!existent_user_hmac) {
-      throw new ForbiddenException('Wrong credentials.');
-    }
-    return existent_user_hmac;
+    await this.checkUserExists(user_hmac);
+    return user_hmac;
   }
 
   public async processRegisterUser(
@@ -58,7 +53,14 @@ export class CacheService extends RedisService {
     return user_hmac;
   }
 
+  public async checkUserExists(user_id: string) {
+    const user = await this.oneGetProcess({ key: `users:${user_id}` });
+    if (!Boolean(user))
+      throw new ForbiddenException(`User does not exists!`);
+  }
+
   public async saveTermForUser(user_id: string, term: TermObject) {
+    await this.checkUserExists(user_id);
     await this.oneCreateProcess({
       key: `users:${user_id}:terms:${term.hash}`,
       value: term.term,
@@ -69,6 +71,7 @@ export class CacheService extends RedisService {
     user_id: string,
     term: TermObject,
   ): Promise<string> {
+    await this.checkUserExists(user_id);
     const existentTermHash = await this.oneGetProcess({
       key: `users:${user_id}:terms:${term.hash}`,
     });
@@ -76,6 +79,7 @@ export class CacheService extends RedisService {
   }
 
   public async getAllTermsOfUser(user_id: string): Promise<string[]> {
+    await this.checkUserExists(user_id);
     const user_terms = await this.repository.keys(
       `users:${user_id}:terms:*`,
     );
@@ -88,6 +92,7 @@ export class CacheService extends RedisService {
   }
 
   public async clearUserTerms(user_id: string) {
+    await this.checkUserExists(user_id);
     const terms_hashes = await this.getAllTermsOfUser(user_id);
     for (const term_hash of terms_hashes) {
       await this.repository.del(`users:${user_id}:${term_hash}`);

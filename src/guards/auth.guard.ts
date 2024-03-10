@@ -10,7 +10,6 @@ import { IS_PUBLIC_KEY } from './public.decorator';
 export class AuthGuard implements CanActivate {
   constructor(
     private jwtService: JwtService,
-    private configService: ConfigService,
     private reflector: Reflector,
   ) {}
 
@@ -19,7 +18,6 @@ export class AuthGuard implements CanActivate {
       IS_PUBLIC_KEY,
       [context.getHandler(), context.getClass()],
     );
-
     if (isPublic) return true;
 
     const request = context.switchToHttp().getRequest();

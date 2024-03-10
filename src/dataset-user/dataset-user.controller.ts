@@ -15,15 +15,18 @@ export class DatasetUserController {
   @Put('book-words')
   @HttpCode(HttpStatus.OK)
   public async book(
-    @Query('amount') amount: number,
-    @Query('repeat') repeat: boolean,
     @Request() req,
+    @Query('amount') amount?: number,
+    @Query('repeat') repeat?: boolean,
   ) {
+    // try {
+    const user_id = req.user.sub;
     const reserved_terms = await this.datasetUserService.applyTermsForUser(
-      req.user.sub,
+      user_id,
       Number(amount),
       Boolean(repeat),
     );
     return reserved_terms;
+    // }
   }
 }
