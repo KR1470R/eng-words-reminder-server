@@ -6,15 +6,21 @@ import {
   ConflictException,
   MethodNotAllowedException,
 } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class DatasetUserService {
-  public readonly maxTermsPerRequest = 10;
+  public readonly maxTermsPerRequest: number;
 
   constructor(
     private datasetService: DatasetService,
     private cacheService: CacheService,
-  ) {}
+    private configService: ConfigService,
+  ) {
+    this.maxTermsPerRequest = parseInt(
+      this.configService.get('MAX_TERMS_PER_REQUEST'),
+    );
+  }
 
   public async allUserTerms(user_id: string) {
     return (await this.cacheService.getAllTermsOfUser(user_id)).length;
@@ -37,8 +43,8 @@ export class DatasetUserService {
     });
   }
 
-  private validateUserAmountRequest(amount: number) {
-    if (amount > this.maxTermsPerRequest) {
+  private validateUserAmountRequest(amount: number, ignoreLimit: boolean) {
+    if (!ignoreLimit && amount > this.maxTermsPerRequest) {
       throw new MethodNotAllowedException(
         `No more than ${this.maxTermsPerRequest} terms per request is allowed`,
       );
@@ -53,12 +59,10 @@ export class DatasetUserService {
     const tempUniqueTerms: Set<TermObject> = new Set();
     while (tempUniqueTerms.size !== amount) {
       const term = await this.getRandomTerm();
-      if (
-        await this.cacheService.repository.get(
-          `users:${user_id}:terms:${term.hash}`,
-        )
-      )
-        continue;
+      const foundUserTerm = await this.cacheService.repository.get(
+        `users:${user_id}:terms:${term.hash}`,
+      );
+      if (foundUserTerm) continue;
       tempUniqueTerms.add(term);
     }
     return tempUniqueTerms;
@@ -78,25 +82,26 @@ export class DatasetUserService {
 
   public async bookTermsForUser(
     user_id: string,
-    amount: number,
+    amount?: number,
     repeat = false,
+    ignoreLimit = false,
   ) {
     await this.cacheService.checkUserExists(user_id);
-    amount = amount || this.maxTermsPerRequest;
-    this.validateUserAmountRequest(amount);
-    const all_user_terms_length = await this.allUserTerms(user_id);
+    amount = amount ?? this.maxTermsPerRequest;
+    this.validateUserAmountRequest(amount, ignoreLimit);
+    let all_user_terms_length = await this.allUserTerms(user_id);
     if (all_user_terms_length >= this.datasetService.data.length) {
       if (!repeat)
         throw new ConflictException(
           'The user learned all terms. Use "repeat" param to learn again.',
         );
-      this.clearUserTerms(user_id);
+      await this.clearUserTerms(user_id);
+      all_user_terms_length = 0;
     }
     if (this.datasetService.data.length - all_user_terms_length < amount)
       amount = this.datasetService.data.length - all_user_terms_length;
-
     const tempUniqueTerms = await this.collectUniqueTerms(user_id, amount);
     await this.saveAllTermsUser(user_id, tempUniqueTerms);
-    return Array.from(tempUniqueTerms.values());
+    return Array.from(tempUniqueTerms);
   }
 }

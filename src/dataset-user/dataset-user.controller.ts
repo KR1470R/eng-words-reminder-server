@@ -2,13 +2,15 @@ import {
   Controller,
   HttpCode,
   HttpStatus,
-  Query,
   Put,
   Request,
   Get,
   Delete,
+  Body,
 } from '@nestjs/common';
 import { DatasetUserService } from './dataset-user.service';
+import BookTermsDto from './dto/BookTerms.dto';
+import BookTermsPipe from './pipes/BookTerms.pipe';
 
 @Controller('dataset-user')
 export class DatasetUserController {
@@ -18,13 +20,13 @@ export class DatasetUserController {
   @HttpCode(HttpStatus.OK)
   public async book(
     @Request() req,
-    @Query('amount') amount?: number,
-    @Query('repeat') repeat?: boolean,
+    @Body(new BookTermsPipe()) data?: BookTermsDto,
   ) {
     const reserved_terms = await this.datasetUserService.bookTermsForUser(
       req.user.sub,
-      Number(amount),
-      Boolean(repeat),
+      data?.amount,
+      data?.repeat,
+      data?.ignoreLimit,
     );
     return reserved_terms;
   }
