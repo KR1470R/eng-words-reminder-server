@@ -26,6 +26,7 @@ import { JwtModule, JwtModuleOptions, JwtService } from '@nestjs/jwt';
             namespace: 'Cache',
             host: configService.get<string>('REDIS_CACHE_HOST'),
             port: Number(configService.get<string>('REDIS_CACHE_PORT')),
+            username: configService.get('REDIS_CACHE_USERNAME'),
             db: Number(configService.get('REDIS_CACHE_DB')),
             password: configService.get('REDIS_CACHE_PASSWORD'),
           },
