@@ -59,8 +59,9 @@ export class DatasetUserService {
     const tempUniqueTerms: Set<TermObject> = new Set();
     while (tempUniqueTerms.size !== amount) {
       const term = await this.getRandomTerm();
-      const foundUserTerm = await this.cacheService.repository.get(
-        `users:${user_id}:terms:${term.hash}`,
+      const foundUserTerm = await this.cacheService.getUserDefinedTerm(
+        user_id,
+        term,
       );
       if (foundUserTerm) continue;
       tempUniqueTerms.add(term);

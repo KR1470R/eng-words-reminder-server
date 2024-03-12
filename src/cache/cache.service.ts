@@ -8,7 +8,11 @@ import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
 
 @Injectable()
 export class CacheService extends RedisService {
-  constructor(@InjectRedis('Cache') public readonly repository: Redis) {
+  private ROOT_NAMESPACE = 'eng-words';
+  private USERS_NAMESPACE = 'users';
+  private TERMS_NAMESPACE = 'terms';
+
+  constructor(@InjectRedis('Cache') protected readonly repository: Redis) {
     super();
   }
 
@@ -28,33 +32,32 @@ export class CacheService extends RedisService {
     username: string,
     password: string,
   ): Promise<string> {
-    const user_hmac = createHmac(
+    const user_id = createHmac(
       'sha256',
       `${username}:${Buffer.from(password).toString('base64')}`,
     ).digest('hex');
-    const existent_user_hmac = await this.oneGetProcess({
-      key: `users:${user_hmac}`,
+    const existent_user_id = await this.oneGetProcess({
+      key: `${this.ROOT_NAMESPACE}:${this.USERS_NAMESPACE}:${user_id}`,
     });
     if (
-      existent_user_hmac &&
-      user_hmac.length === existent_user_hmac.length &&
-      timingSafeEqual(
-        Buffer.from(user_hmac),
-        Buffer.from(existent_user_hmac),
-      )
+      existent_user_id &&
+      user_id.length === existent_user_id.length &&
+      timingSafeEqual(Buffer.from(user_id), Buffer.from(existent_user_id))
     )
       throw new UnauthorizedException(
         'User with such creds already exists.',
       );
     await this.oneCreateProcess({
-      key: `users:${user_hmac}`,
-      value: user_hmac,
+      key: `${this.ROOT_NAMESPACE}:${this.USERS_NAMESPACE}:${user_id}`,
+      value: user_id,
     });
-    return user_hmac;
+    return user_id;
   }
 
   public async checkUserExists(user_id: string) {
-    const user = await this.oneGetProcess({ key: `users:${user_id}` });
+    const user = await this.oneGetProcess({
+      key: `${this.ROOT_NAMESPACE}:${this.USERS_NAMESPACE}:${user_id}`,
+    });
     if (!Boolean(user))
       throw new ForbiddenException(`User does not exists!`);
   }
@@ -62,7 +65,7 @@ export class CacheService extends RedisService {
   public async saveTermForUser(user_id: string, term: TermObject) {
     await this.checkUserExists(user_id);
     await this.oneCreateProcess({
-      key: `users:${user_id}:terms:${term.hash}`,
+      key: `${this.ROOT_NAMESPACE}:${this.USERS_NAMESPACE}:${user_id}:${this.TERMS_NAMESPACE}:${term.hash}`,
       value: term.term,
     });
   }
@@ -73,7 +76,7 @@ export class CacheService extends RedisService {
   ): Promise<string> {
     await this.checkUserExists(user_id);
     const existentTermHash = await this.oneGetProcess({
-      key: `users:${user_id}:terms:${term.hash}`,
+      key: `${this.ROOT_NAMESPACE}:${this.USERS_NAMESPACE}:${user_id}:${this.TERMS_NAMESPACE}:${term.hash}`,
     });
     return existentTermHash;
   }
@@ -81,13 +84,15 @@ export class CacheService extends RedisService {
   public async getAllTermsOfUser(user_id: string): Promise<string[]> {
     await this.checkUserExists(user_id);
     const user_terms = await this.repository.keys(
-      `users:${user_id}:terms:*`,
+      `${this.ROOT_NAMESPACE}:${this.USERS_NAMESPACE}:${user_id}:${this.TERMS_NAMESPACE}:*`,
     );
     return user_terms;
   }
 
   public async getAllUsersIds(): Promise<string[]> {
-    const users_ids = await this.repository.keys(`users:*`);
+    const users_ids = await this.repository.keys(
+      `${this.ROOT_NAMESPACE}:${this.USERS_NAMESPACE}:*`,
+    );
     return users_ids as UUID[];
   }
 
