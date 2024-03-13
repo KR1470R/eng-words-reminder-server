@@ -7,7 +7,7 @@ import {
   Post,
 } from '@nestjs/common';
 import { AuthService } from './auth.service';
-import { Public } from 'src/guards/public.decorator';
+import { Public } from 'src/auth/guards/public.decorator';
 import RegisterUserDto from './dto/registerUser.dto';
 
 @Controller('auth')

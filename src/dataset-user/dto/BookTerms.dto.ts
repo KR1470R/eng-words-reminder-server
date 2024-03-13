@@ -9,7 +9,7 @@ import {
 export default class BookTermsDto {
   /**
    * Amount of desirable terms server should return.
-   * Note that it's recommended not to use big value, for example no more than 10.
+   * Note that it's recommended and enforced to not to use big value, for example no more than 10.
    * This value can be ignored due to the server can use the default value.
    */
   @IsOptional()

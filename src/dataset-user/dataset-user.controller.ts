@@ -10,7 +10,6 @@ import {
 } from '@nestjs/common';
 import { DatasetUserService } from './dataset-user.service';
 import BookTermsDto from './dto/BookTerms.dto';
-import BookTermsPipe from './pipes/BookTerms.pipe';
 
 @Controller('dataset-user')
 export class DatasetUserController {
@@ -18,10 +17,7 @@ export class DatasetUserController {
 
   @Put('book-words')
   @HttpCode(HttpStatus.OK)
-  public async book(
-    @Request() req,
-    @Body(new BookTermsPipe()) data?: BookTermsDto,
-  ) {
+  public async book(@Request() req, @Body() data?: BookTermsDto) {
     const reserved_terms = await this.datasetUserService.bookTermsForUser(
       req.user.sub,
       data?.amount,

@@ -4,7 +4,7 @@ import { RedisService } from '../redis/redis.service';
 import { InjectRedis } from '@liaoliaots/nestjs-redis';
 import TermObject from '../models/TermObject.type';
 import { UUID, timingSafeEqual, createHmac } from 'crypto';
-import { ForbiddenException, UnauthorizedException } from '@nestjs/common';
+import { ForbiddenException } from '@nestjs/common';
 
 @Injectable()
 export class CacheService extends RedisService {
@@ -44,9 +44,7 @@ export class CacheService extends RedisService {
       user_id.length === existent_user_id.length &&
       timingSafeEqual(Buffer.from(user_id), Buffer.from(existent_user_id))
     )
-      throw new UnauthorizedException(
-        'User with such creds already exists.',
-      );
+      throw new ForbiddenException('User with such creds already exists.');
     await this.oneCreateProcess({
       key: `${this.ROOT_NAMESPACE}:${this.USERS_NAMESPACE}:${user_id}`,
       value: user_id,
