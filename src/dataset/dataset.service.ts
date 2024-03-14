@@ -7,12 +7,15 @@ import ExportMessagesData, {
 } from 'src/models/ExportMessages.interface';
 import TermObject from 'src/models/TermObject.type';
 import { createHmac } from 'node:crypto';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class DatasetService {
   private terms_words: TermObject[] = [];
+  private data_path: string;
 
-  constructor() {
+  constructor(private configService: ConfigService) {
+    this.data_path = this.configService.get('DATA_PATH');
     this.load();
   }
 
@@ -22,10 +25,7 @@ export class DatasetService {
 
   private load(): void {
     const raw_data = JSON.parse(
-      fs.readFileSync(
-        path.join(__dirname, '..', 'data', 'messages.json'),
-        'utf-8',
-      ),
+      fs.readFileSync(this.data_path, 'utf-8'),
     ) as ExportMessagesData;
     for (const message of raw_data.messages) {
       const parsed_msgs = this.getWordsFromSuitableMsg(message);
