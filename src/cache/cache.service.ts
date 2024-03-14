@@ -11,6 +11,7 @@ export class CacheService extends RedisService {
   private ROOT_NAMESPACE = 'eng-words';
   private USERS_NAMESPACE = 'users';
   private TERMS_NAMESPACE = 'terms';
+  private AUTH_NAMESPACE = 'auth';
 
   constructor(@InjectRedis('Cache') protected readonly repository: Redis) {
     super();
@@ -20,44 +21,64 @@ export class CacheService extends RedisService {
     username: string,
     password: string,
   ): Promise<string> {
-    const user_hmac = createHmac(
-      'sha256',
-      `${username}:${Buffer.from(password).toString('base64')}`,
-    ).digest('hex');
-    await this.checkUserExists(user_hmac);
-    return user_hmac;
+    const username_hmac = createHmac('sha256', username).digest('hex');
+    const pass_hmac = createHmac('sha256', password).digest('hex');
+    const user_id = Buffer.from(username_hmac).toString('base64');
+    const parsed_user: { username_hmac: string; pass_hmac: string } =
+      JSON.parse(await this.checkUserExists(user_id));
+    if (
+      username_hmac.length === parsed_user.username_hmac.length &&
+      timingSafeEqual(
+        Buffer.from(username_hmac),
+        Buffer.from(parsed_user.username_hmac),
+      ) &&
+      pass_hmac.length === parsed_user.pass_hmac.length &&
+      timingSafeEqual(
+        Buffer.from(pass_hmac),
+        Buffer.from(parsed_user.pass_hmac),
+      )
+    )
+      return user_id;
+    throw new ForbiddenException('Invalid password!');
   }
 
   public async processRegisterUser(
     username: string,
     password: string,
   ): Promise<string> {
-    const user_id = createHmac(
-      'sha256',
-      `${username}:${Buffer.from(password).toString('base64')}`,
-    ).digest('hex');
-    const existent_user_id = await this.oneGetProcess({
-      key: `${this.ROOT_NAMESPACE}:${this.USERS_NAMESPACE}:${user_id}`,
-    });
-    if (
-      existent_user_id &&
-      user_id.length === existent_user_id.length &&
-      timingSafeEqual(Buffer.from(user_id), Buffer.from(existent_user_id))
-    )
-      throw new ForbiddenException('User with such login already exists.');
+    const username_hmac = createHmac('sha256', username).digest('hex');
+    const user_id = Buffer.from(username_hmac).toString('base64');
+    const existent_user = await this.checkUserExists(user_id, false);
+    if (existent_user) {
+      const parsed_user: { username_hmac: string; pass_hmac: string } =
+        JSON.parse(existent_user);
+      if (
+        username_hmac.length === parsed_user.username_hmac.length &&
+        timingSafeEqual(
+          Buffer.from(parsed_user.username_hmac),
+          Buffer.from(username_hmac),
+        )
+      )
+        throw new ForbiddenException(
+          'User with such login already exists.',
+        );
+    }
+    const pass_hmac = createHmac('sha256', password).digest('hex');
     await this.oneCreateProcess({
-      key: `${this.ROOT_NAMESPACE}:${this.USERS_NAMESPACE}:${user_id}`,
-      value: user_id,
+      key: `${this.ROOT_NAMESPACE}:${this.USERS_NAMESPACE}:${user_id}:${this.AUTH_NAMESPACE}`,
+      value: JSON.stringify({ username_hmac, pass_hmac }),
     });
     return user_id;
   }
 
-  public async checkUserExists(user_id: string) {
+  public async checkUserExists(user_id: string, throwIfNotExists = true) {
     const user = await this.oneGetProcess({
-      key: `${this.ROOT_NAMESPACE}:${this.USERS_NAMESPACE}:${user_id}`,
+      key: `${this.ROOT_NAMESPACE}:${this.USERS_NAMESPACE}:${user_id}:${this.AUTH_NAMESPACE}`,
     });
-    if (!Boolean(user))
-      throw new NotFoundException(`User does not exists!`);
+    if (!Boolean(user)) {
+      if (throwIfNotExists)
+        throw new NotFoundException(`User does not exists!`);
+    } else return user;
   }
 
   public async saveTermForUser(user_id: string, term: TermObject) {

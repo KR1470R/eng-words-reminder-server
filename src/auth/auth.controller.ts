@@ -54,6 +54,9 @@ export class AuthController {
   @ApiNotFoundResponse({
     description: 'User does not exists!',
   })
+  @ApiForbiddenResponse({
+    description: 'Invalid password!',
+  })
   @Get('login')
   @Public()
   @HttpCode(HttpStatus.OK)
