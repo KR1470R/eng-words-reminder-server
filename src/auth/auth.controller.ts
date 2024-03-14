@@ -1,7 +1,6 @@
 import {
   Body,
   Controller,
-  Get,
   HttpCode,
   HttpStatus,
   Post,
@@ -57,7 +56,7 @@ export class AuthController {
   @ApiForbiddenResponse({
     description: 'Invalid password!',
   })
-  @Get('login')
+  @Post('login')
   @Public()
   @HttpCode(HttpStatus.OK)
   public login(
