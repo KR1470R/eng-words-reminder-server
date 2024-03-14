@@ -14,6 +14,10 @@ async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   app.useGlobalPipes(new ValidationPipe());
 
+  const globalPrefix = process.env.GLOBAL_PREFIX;
+  if (globalPrefix && globalPrefix.length)
+    app.setGlobalPrefix(globalPrefix);
+
   if (process.env.SERVER_ENV !== 'prod') {
     const config = new DocumentBuilder()
       .setTitle('eng-words-reminder')
