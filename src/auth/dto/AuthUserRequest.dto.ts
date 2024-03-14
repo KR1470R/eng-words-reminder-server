@@ -4,10 +4,10 @@ import { ApiProperty } from '@nestjs/swagger';
 export default class AuthUserRequestDto {
   @ApiProperty({
     example: 'Ryan_GoslingRulit123',
-    minimum: 7,
+    minimum: 5,
   })
   @IsNotEmpty()
-  @MinLength(5, { message: 'Username should be at least 7 symbols' })
+  @MinLength(5, { message: 'Username should be at least 5 symbols' })
   username: string;
 
   @ApiProperty({
