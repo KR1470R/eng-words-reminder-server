@@ -50,6 +50,7 @@ async function bootstrap() {
     });
     SwaggerModule.setup('docs', app, document, {
       customSiteTitle: 'Docs eng-words-reminder',
+      customCss: '.topbar { display: none }',
     });
   }
 
