@@ -1,73 +1,97 @@
-<p align="center">
-  <a href="http://nestjs.com/" target="blank"><img src="https://nestjs.com/img/logo-small.svg" width="200" alt="Nest Logo" /></a>
-</p>
+<center>
+<h1>
+	eng-words-reminder 
+<div>
+	<img alt="" src="https://badgen.net/badge/nest/^9.0.0/green">
+	<img alt="" src="https://badgen.net/badge/node/^20/green">
+	<img alt="" src="https://badgen.net/badge/redis/^7.0.0/red">
+	<img alt="" src="https://badgen.net/badge/typescript/^4.7.0/blue">
+</div>
+</h1>
+A node.js server which used for reminding and teaching english words to WearOS.
+</center>
 
-[circleci-image]: https://img.shields.io/circleci/build/github/nestjs/nest/master?token=abc123def456
-[circleci-url]: https://circleci.com/gh/nestjs/nest
-
-  <p align="center">A progressive <a href="http://nodejs.org" target="_blank">Node.js</a> framework for building efficient and scalable server-side applications.</p>
-    <p align="center">
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/v/@nestjs/core.svg" alt="NPM Version" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/l/@nestjs/core.svg" alt="Package License" /></a>
-<a href="https://www.npmjs.com/~nestjscore" target="_blank"><img src="https://img.shields.io/npm/dm/@nestjs/common.svg" alt="NPM Downloads" /></a>
-<a href="https://circleci.com/gh/nestjs/nest" target="_blank"><img src="https://img.shields.io/circleci/build/github/nestjs/nest/master" alt="CircleCI" /></a>
-<a href="https://coveralls.io/github/nestjs/nest?branch=master" target="_blank"><img src="https://coveralls.io/repos/github/nestjs/nest/badge.svg?branch=master#9" alt="Coverage" /></a>
-<a href="https://discord.gg/G7Qnnhy" target="_blank"><img src="https://img.shields.io/badge/discord-online-brightgreen.svg" alt="Discord"/></a>
-<a href="https://opencollective.com/nest#backer" target="_blank"><img src="https://opencollective.com/nest/backers/badge.svg" alt="Backers on Open Collective" /></a>
-<a href="https://opencollective.com/nest#sponsor" target="_blank"><img src="https://opencollective.com/nest/sponsors/badge.svg" alt="Sponsors on Open Collective" /></a>
-  <a href="https://paypal.me/kamilmysliwiec" target="_blank"><img src="https://img.shields.io/badge/Donate-PayPal-ff3f59.svg"/></a>
-    <a href="https://opencollective.com/nest#sponsor"  target="_blank"><img src="https://img.shields.io/badge/Support%20us-Open%20Collective-41B883.svg" alt="Support us"></a>
-  <a href="https://twitter.com/nestframework" target="_blank"><img src="https://img.shields.io/twitter/follow/nestframework.svg?style=social&label=Follow"></a>
-</p>
-  <!--[![Backers on Open Collective](https://opencollective.com/nest/backers/badge.svg)](https://opencollective.com/nest#backer)
-  [![Sponsors on Open Collective](https://opencollective.com/nest/sponsors/badge.svg)](https://opencollective.com/nest#sponsor)-->
-
-## Description
-
-[Nest](https://github.com/nestjs/nest) framework TypeScript starter repository.
-
-## Installation
-
+# API Overview
+The API is described with Swagger, so you can easily check the docs by this [link](https://kr1470r.xyz/eng-words-reminder/demo/docs).
+# Setting up
 ```bash
-$ npm install
+git clone git@github.com:KR1470R/eng-words-reminder-server.git && \
+cd eng-words-reminder-server/ && \
+npm ci
+```
+## Configuration
+First of all, let's make a copy of the `configs/.env.example`:
+```bash
+cp configs/.env.example configs/.env
+```
+## Config overview
+<table>
+  <tr>
+    <th>Variable</th>
+    <th>Explanation</th>
+  </tr>
+  <tr>
+    <td>SERVER_PORT</td>
+    <td>Port for the local server.</td>
+  </tr>
+  <tr>
+    <td>SERVER_ENV</td>
+    <td>
+    <strong>demo</strong> - makes <code>/docs</code> endpoint available only; <br>
+     <strong>dev</strong> - all endpoints available for development; <br> 
+     <strong>prod</strong> - makes <code>/docs</code> disabled.
+    </td>
+  </tr>
+  <tr>
+    <td>REDIS_CACHE_HOST</td>
+    <td>Redis host(i.e <code>localhost</code>).</td>
+  </tr>
+  <tr>
+    <td>REDIS_CACHE_PORT</td>
+    <td>Redis port(i.e <code>6379</code>).</td>
+  </tr>
+  <tr>
+    <td>REDIS_CACHE_DB</td>
+    <td>Which DB to use(by default <code>0</code>).</td>
+  </tr>
+  <tr>
+    <td>REDIS_CACHE_USERNAME</td>
+    <td>Redis username.</td>
+  </tr>
+  <tr>
+    <td>REDIS_CACHE_PASSWORD</td>
+    <td>Redis user password.</td>
+  </tr>
+  <tr>
+    <td>JWT_SECRET</td>
+    <td>Your secret for JWT Auth.</td>
+  </tr>
+  <tr>
+    <td>MAX_TERMS_PER_REQUEST</td>
+    <td>That's the limit for amount vocabulary words should be returned when requesting on <code>dataset-user/book-words</code>(recommended <code>10</code>).</td>
+  </tr>
+    <tr>
+    <td>DATA_PATH</td>
+    <td>The absolute path to the dataset of the vocabulary(note, that for now the dataset should be in a specific JSON format, exported from the Telegram as messages). Example of such message:<br>
+<pre>
+    /vocab
+    word - meaning;
+    word2 - meaning;
+    and so on...<pre>
+   </td>
+  </tr>
+  <tr>
+    <td>GLOBAL_PREFIX</td>
+    <td>This can be skipped and unset.</td>
+  </tr>
+</table>
+
+</body>
+</html>
+
+# Run
+After the project initialized, installed dependencies and configured, you are able to run the server:
+```bash
+ENV_PATH="<absolute-path-to-the-project>/configs/.env" npm run start
 ```
 
-## Running the app
-
-```bash
-# development
-$ npm run start
-
-# watch mode
-$ npm run start:dev
-
-# production mode
-$ npm run start:prod
-```
-
-## Test
-
-```bash
-# unit tests
-$ npm run test
-
-# e2e tests
-$ npm run test:e2e
-
-# test coverage
-$ npm run test:cov
-```
-
-## Support
-
-Nest is an MIT-licensed open source project. It can grow thanks to the sponsors and support by the amazing backers. If you'd like to join them, please [read more here](https://docs.nestjs.com/support).
-
-## Stay in touch
-
-- Author - [Kamil Myśliwiec](https://kamilmysliwiec.com)
-- Website - [https://nestjs.com](https://nestjs.com/)
-- Twitter - [@nestframework](https://twitter.com/nestframework)
-
-## License
-
-Nest is [MIT licensed](LICENSE).
