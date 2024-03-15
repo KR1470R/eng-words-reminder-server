@@ -4,10 +4,19 @@ import {
   RedisPayloadOne,
   RedisPayloadMany,
 } from 'src/models/RedisPayload.type';
+import { Logger } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 
 @Injectable()
 export class RedisService {
+  protected readonly logger = new Logger();
   protected readonly repository: Redis;
+  protected readonly disabled: boolean;
+
+  constructor(protected configService: ConfigService) {
+    this.disabled = this.configService.get('SERVER_ENV') === 'demo';
+    if (this.disabled) this.logger.warn('Disabled RedisService for demo.');
+  }
 
   protected async oneCreateProcess(
     payload: RedisPayloadOne,

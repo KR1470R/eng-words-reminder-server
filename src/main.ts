@@ -1,14 +1,23 @@
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { configDotenv } from 'dotenv';
-import path from 'node:path';
 import process from 'node:process';
 import { ValidationPipe } from '@nestjs/common';
 import { SwaggerModule, DocumentBuilder } from '@nestjs/swagger';
 
-configDotenv({
-  path: path.join(__dirname, 'configs', '.env'),
-});
+const envPath = process.env.ENV_PATH;
+if (!envPath) {
+  throw new Error(
+    'Cannot start app without "ENV_PATH" environment variable!',
+  );
+}
+
+const config = configDotenv({ path: envPath });
+if (config?.error) {
+  throw new Error(
+    `Cannot start app due to failed in loading env file: ${config.error.message}`,
+  );
+}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);

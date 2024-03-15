@@ -1,6 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import fs from 'fs';
-import path from 'node:path';
 import ExportMessagesData, {
   Message,
   MessageObjectType,
@@ -8,15 +7,19 @@ import ExportMessagesData, {
 import TermObject from 'src/models/TermObject.type';
 import { createHmac } from 'node:crypto';
 import { ConfigService } from '@nestjs/config';
+import { Logger } from '@nestjs/common';
 
 @Injectable()
 export class DatasetService {
+  private readonly logger = new Logger();
   private terms_words: TermObject[] = [];
   private data_path: string;
 
   constructor(private configService: ConfigService) {
     this.data_path = this.configService.get('DATA_PATH');
-    this.load();
+    if (this.configService.get('SERVER_ENV') === 'demo') {
+      this.logger.warn('Skipping dataset loading on demo');
+    } else this.load();
   }
 
   public get data() {

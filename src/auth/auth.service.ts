@@ -1,6 +1,7 @@
 import { CacheService } from 'src/cache/cache.service';
 import { JwtService } from '@nestjs/jwt';
 import { Injectable } from '@nestjs/common';
+import { ForbiddenException } from '@nestjs/common';
 
 @Injectable()
 export class AuthService {
@@ -14,6 +15,8 @@ export class AuthService {
       username,
       password,
     );
+    if (!user_id)
+      throw new ForbiddenException('Resource is not available');
     return {
       access_token: await this.jwtService.signAsync({ sub: user_id }),
     };
@@ -24,6 +27,8 @@ export class AuthService {
       username,
       password,
     );
+    if (!user_id)
+      throw new ForbiddenException('Resource is not available');
     return {
       access_token: await this.jwtService.signAsync({ sub: user_id }),
     };

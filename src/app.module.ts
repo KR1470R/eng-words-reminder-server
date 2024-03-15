@@ -1,4 +1,3 @@
-import path from 'node:path';
 import { Module } from '@nestjs/common';
 import { RedisModule } from '@liaoliaots/nestjs-redis';
 import { ConfigModule, ConfigService } from '@nestjs/config';
@@ -8,7 +7,7 @@ import { DatasetUserModule } from './dataset-user/dataset-user.module';
 @Module({
   imports: [
     ConfigModule.forRoot({
-      envFilePath: path.join(__dirname, 'configs', '.env'),
+      envFilePath: process.env.ENV_PATH,
       isGlobal: true,
     }),
     RedisModule.forRootAsync({
