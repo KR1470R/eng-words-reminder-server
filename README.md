@@ -1,18 +1,16 @@
-<center>
-<h1>
-	eng-words-reminder 
-<div>
+<h1 align="center">eng-words-reminder</h1> 
+<div align="center">
 	<img alt="" src="https://badgen.net/badge/nest/^9.0.0/green">
 	<img alt="" src="https://badgen.net/badge/node/^20/green">
 	<img alt="" src="https://badgen.net/badge/redis/^7.0.0/red">
 	<img alt="" src="https://badgen.net/badge/typescript/^4.7.0/blue">
 </div>
-</h1>
+<p align="center">
 A node.js server which used for reminding and teaching english words to WearOS.
-</center>
+</p>
 
 # API Overview
-The API is described with Swagger, so you can easily check the docs by this [link](https://kr1470r.xyz/eng-words-reminder/demo/docs).
+The API is described with Swagger, so you can easily check the docs by this [LINK](https://kr1470r.xyz/eng-words-reminder/demo/docs).
 # Setting up
 ```bash
 git clone git@github.com:KR1470R/eng-words-reminder-server.git && \
@@ -39,7 +37,7 @@ cp configs/.env.example configs/.env
     <td>
     <strong>demo</strong> - makes <code>/docs</code> endpoint available only; <br>
      <strong>dev</strong> - all endpoints available for development; <br> 
-     <strong>prod</strong> - makes <code>/docs</code> disabled.
+     <strong>prod</strong> - makes <code>/docs</code> endpoint disabled.
     </td>
   </tr>
   <tr>
@@ -74,10 +72,10 @@ cp configs/.env.example configs/.env
     <td>DATA_PATH</td>
     <td>The absolute path to the dataset of the vocabulary(note, that for now the dataset should be in a specific JSON format, exported from the Telegram as messages). Example of such message:<br>
 <pre>
-    /vocab
-    word - meaning;
-    word2 - meaning;
-    and so on...<pre>
+/vocab
+word - meaning;
+word2 - meaning;
+and so on...</pre>
    </td>
   </tr>
   <tr>
